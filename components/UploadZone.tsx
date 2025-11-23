@@ -1,8 +1,4 @@
 import React, { useCallback, useState } from 'react';
-import { useDropzone } from 'react-dropzone'; // Note: User prompt banned react-dropzone. I must implement native input as per strict instruction 5.
-// Correction: The strict instruction says "MUST NOT use react-dropzone... use a file input element instead". 
-// I will rewrite this using standard Drag and Drop API and <input type="file">.
-
 import { UploadCloud, FileText, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
