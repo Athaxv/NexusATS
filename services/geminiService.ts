@@ -2,11 +2,37 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { AtsAnalysis } from "../types";
 
 const getAiClient = () => {
-  // Safe access to process.env for browser environments
-  const apiKey = typeof process !== 'undefined' ? process.env?.API_KEY : undefined;
+  let apiKey: string | undefined;
+
+  // 1. Try Vite standard (Client-side Vercel/Netlify deployments)
+  // We use import.meta.env which is the standard for Vite
+  try {
+    // @ts-ignore
+    apiKey = import.meta.env.VITE_API_KEY;
+  } catch (e) {
+    // import.meta might not exist in some environments, ignore
+  }
+
+  // 2. Fallback to standard process.env (Node.js/Webpack/Next.js)
+  // We check safely to prevent ReferenceError: process is not defined
+  if (!apiKey) {
+    try {
+      // We check if process exists before accessing it to avoid crashes in strict browser envs
+      if (typeof process !== 'undefined' && process.env) {
+        apiKey = process.env.API_KEY;
+      }
+    } catch (e) {
+      // Ignore errors
+    }
+  }
   
   if (!apiKey) {
-    throw new Error("API_KEY is not defined in the environment. Please check your deployment settings.");
+    throw new Error(
+      "Configuration Error: API Key is missing.\n\n" +
+      "If you are using Vercel/Netlify/Vite:\n" +
+      "1. Rename your environment variable to 'VITE_API_KEY'\n" +
+      "2. Redeploy the application."
+    );
   }
   return new GoogleGenAI({ apiKey });
 };
