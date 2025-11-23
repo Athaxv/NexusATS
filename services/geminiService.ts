@@ -2,9 +2,11 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { AtsAnalysis } from "../types";
 
 const getAiClient = () => {
-  const apiKey = process.env.API_KEY;
+  // Safe access to process.env for browser environments
+  const apiKey = typeof process !== 'undefined' ? process.env?.API_KEY : undefined;
+  
   if (!apiKey) {
-    throw new Error("API_KEY is not defined in the environment.");
+    throw new Error("API_KEY is not defined in the environment. Please check your deployment settings.");
   }
   return new GoogleGenAI({ apiKey });
 };

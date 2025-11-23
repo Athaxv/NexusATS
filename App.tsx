@@ -30,7 +30,6 @@ export default function App() {
       const mimeType = file.type;
 
       // Parallel execution: Analyze data AND initialize chat context
-      // Note: We use the same base64 for both.
       const dataPromise = analyzeResume(base64, mimeType);
       
       const data = await dataPromise;
@@ -40,8 +39,18 @@ export default function App() {
       setChatSession(session);
       setAppState(AppState.RESULTS);
     } catch (err: any) {
-      console.error(err);
-      setErrorMsg("Failed to analyze resume. Please try again or check your API key.");
+      console.error("Analysis Error:", err);
+      
+      let message = "Failed to analyze resume. Please try again.";
+      
+      // Provide specific feedback for configuration errors
+      if (err.message && (err.message.includes("API_KEY") || err.message.includes("API key"))) {
+        message = "Configuration Error: API_KEY is missing. Please set the API_KEY environment variable in your deployment settings.";
+      } else if (err.message) {
+        message = err.message;
+      }
+
+      setErrorMsg(message);
       setAppState(AppState.ERROR);
     }
   };
@@ -131,7 +140,9 @@ export default function App() {
                 <Loader2 className="w-8 h-8 text-red-500 animate-pulse" /> 
               </div>
               <h2 className="text-xl font-bold text-white mb-2">Analysis Failed</h2>
-              <p className="text-slate-400 max-w-md mx-auto mb-6">{errorMsg}</p>
+              <p className="text-red-400 max-w-md mx-auto mb-6 bg-red-950/30 p-4 rounded-lg border border-red-900/50">
+                {errorMsg}
+              </p>
               <button 
                 onClick={handleReset}
                 className="px-6 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-white transition-colors border border-slate-700 shadow-lg"
